@@ -69,46 +69,6 @@ const getVideos = asyncHandler(async (req, res) => {
     }
   });
 
- /* const getComments = asyncHandler(async (req, res) => {
-    const { comments, username, videoFile, title, time } = req.body;
-
-    // Basic validation
-    if (!comments || comments.trim() === "") {
-        throw new ApiError(400, "Comment is required");
-    }
-    if (!username || username.trim() === "") {
-        throw new ApiError(400, "Username is required");
-    }
-    if (!videoFile || videoFile.trim() === "") {
-        throw new ApiError(400, "Video file is required");
-    }
-    if (!title || title.trim() === "") {
-        throw new ApiError(400, "Title is required");
-    }
-    if (!time && time !== 0) {
-        throw new ApiError(400, "Time is required");
-    }
-
-    const normalizedUsername = username.trim().toLowerCase();
-
-    // Find user in DB
-    const findUser = await User.findOne({ username: normalizedUsername });
-    if (!findUser) {
-        throw new ApiError(400, "User doesn't exist");
-    }
-
-    // Create the comment with all necessary fields
-    const createdComments = await Video.create({
-        username,
-        comments,
-        videoFile,
-        title,
-        time
-    });
-
-    console.log(createdComments);
-    return res.status(201).json(new ApiResponse(200, createdComments, "Commented successfully"));
-//});*/
 
 const addComment = asyncHandler(async (req, res) => {
     const videoId = req.params.id; // Video ID passed as a route parameter
@@ -169,9 +129,29 @@ const addLikes = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, "Like updated successfully", video));
 });
 
+const addViews = asyncHandler(async (req, res) => {
+    const videoId = req.params.id; // Video ID passed as a route parameter
+
+    // Find the video by ID
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    // Increment the views count
+    video.views += 1;
+
+    // Save the updated video document
+    await video.save();
+
+    console.log(`Views incremented for video: ${video._id}`);
+
+    res.status(200).json(new ApiResponse(200, "View count incremented", video));
+});
 
 
 
   
 
-export {uploadPost, getVideos, addComment, addLikes} 
+export {uploadPost, getVideos, addComment, addLikes, addViews} 
